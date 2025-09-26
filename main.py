@@ -86,8 +86,14 @@ class Factory:
 
 prospect_id = 1
 
+goods = {}
 
 while True:
+    if money < 0:
+        print(f"\n\n\nYou are in insurmountable amounts of debt! Game over.\n\nYour actions caused the deaths of {deaths} people.\n\nGame Over! You ended with ${money}")
+        break
+    #for factory in list_of_factories:
+        #goods[factory.good] += factory.goods_yield
     fluctuate_market()
     quarter += 1
     print("\n"+convert_to_year_quarter())
@@ -164,7 +170,7 @@ while True:
                 elif not inte == -1:
                     continues = False
                     try:
-                        print(total_list[inte-1])
+                        #print(total_list[inte-1])
                         continues = True
                     except:
                         print("\nInvalid plot.\n")
@@ -186,15 +192,40 @@ while True:
                                     new_factory = Factory(plot.good,plot.plot_id,plot.goods_yield,-25,50)
                                     list_of_factories.append(new_factory)
                                     list_of_prospects.remove(plot)
-                                    print(f"\nYou have built a {plot.good} plant that produces {plot.goods_yield}{plot.good} per quarter.")
+                                    print(f"\nYou have built a {plot.good} plant that produces {plot.goods_yield} {plot.good} per quarter.")
                                     add_deaths = max(0,random.randint(-250,150))
-                                    print(f"\nIt cost ${labor1_cost}")
+                                    deaths += add_deaths
+                                    print(f"\nIt cost ${labor1_cost}.")
+                                    print(f"You now have ${money}.")
                                     print(f"\nAdditionally it cost the lives of {add_deaths} workers.")
                                     input("\nAre you happy with yourself?\nY/N:")
                                     break
-                                #elif labor_type_choice == "2":
-                                    
-                                #elif labor_type_choice == "3":
+                                elif labor_type_choice == "2":
+                                    money -= labor2_cost
+                                    new_factory = Factory(plot.good,plot.plot_id,plot.goods_yield,-35,25)
+                                    list_of_factories.append(new_factory)
+                                    list_of_prospects.remove(plot)
+                                    print(f"\nYou have built a {plot.good} plant that produces {plot.goods_yield} {plot.good} per quarter.")
+                                    add_deaths = max(0,random.randint(-350,100))
+                                    deaths += add_deaths
+                                    print(f"\nIt cost ${labor2_cost}.")
+                                    print(f"You now have ${money}.")
+                                    print(f"\nAdditionally it cost the lives of {add_deaths} workers.")
+                                    input("\nAre you happy with yourself?\nY/N:")
+                                    break
+                                elif labor_type_choice == "3":
+                                    money -= labor3_cost
+                                    new_factory = Factory(plot.good,plot.plot_id,plot.goods_yield,-50,2)
+                                    list_of_factories.append(new_factory)
+                                    list_of_prospects.remove(plot)
+                                    print(f"\nYou have built a {plot.good} plant that produces {plot.goods_yield} {plot.good} per quarter.")
+                                    add_deaths = max(0,random.randint(-350,25))
+                                    deaths += add_deaths
+                                    print(f"\nIt cost ${labor3_cost}.")
+                                    print(f"You now have ${money}.")
+                                    print(f"\nAdditionally it cost the lives of {add_deaths} workers.")
+                                    input("\nAre you happy with yourself?\nY/N:")
+                                    break
                             break
                                     
 
