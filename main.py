@@ -10,7 +10,7 @@ print("You are one of these robber barons, do whatever it takes to rise to the t
 first_name = input("What is your name? ")
 company_name = input("What is your company name? ")
 
-money = 100000
+money:int = 100000
 
 quarter = 0
 
@@ -73,6 +73,7 @@ class Prospect:
     return f"Your prospect for {self.good}, which has a yield of {self.goods_yield} {self.good} per quarter"
 
 list_of_factories = []
+
 class Factory:
   def __init__(self, good, plot_id, goods_yield, min_deaths, max_deaths):
     self.good = good
@@ -90,13 +91,22 @@ goods = {}
 
 while True:
     if money < 0:
-        print(f"\n\n\nYou are in insurmountable amounts of debt! Game over.\n\nYour actions caused the deaths of {deaths} people.\n\nGame Over! You ended with ${money}")
+        print(f"\n\n\nYou are in insurmountable amounts of debt! Game over.\n\nYour actions caused the deaths of {deaths} people.\n\nGame Over! You ended with ${money}\n\n\n")
         break
-    #for factory in list_of_factories:
-        #goods[factory.good] += factory.goods_yield
+    for factory in list_of_factories:
+        if factory.good in goods:
+            goods[factory.good] += factory.goods_yield
+        else:
+            goods[factory.good] = factory.goods_yield
+        deaths += max(0,random.randint(factory.min_deaths,factory.max_deaths))
+
     fluctuate_market()
     quarter += 1
     print("\n"+convert_to_year_quarter())
+    if not quarter == 1 and quarter % 4 == 1:
+        tax = int((max(money,0) * 0.07) + 20000)
+        print(f"\nYou have lost ${tax} due to taxes and other miscellaneous costs.")
+        money -= tax
     print("\nGood morning, '"+str(first_name)+".' Your company, '"+str(company_name)+"', currently has $"+str(money)+".\n")
 
     if quarter == 1:
@@ -107,6 +117,7 @@ while True:
         print("0: Proceed to the next quarter")
         print("1: Prospect for resources")
         print("2: Build a factory")
+        print("3: Company Information")
 
         quarterly_choice = input("\n")
 
@@ -227,6 +238,24 @@ while True:
                                     input("\nAre you happy with yourself?\nY/N:")
                                     break
                             break
-                                    
+        elif quarterly_choice == "3":
+            while True:
+                info_choice = input("\nWhat would you like to look at?\n\n0: Go back\n\n1: List of factories\n2:List of goods\n\n")
+
+                if info_choice == "0":
+                    break
+                elif info_choice == "1":
+                    print("\nHere are all of your factories:\n")
+                    x = 0
+                    for factory in list_of_factories:
+                        x += 1
+                        print(str(x)+": "+str(factory))
+                elif info_choice == "2":
+                    print("\nHere are your goods:\n")
+                    print(f"\n${money}\n")
+                    x = 0
+                    for good in goods:
+                        print(str(good)+": "+str(goods[good]))
+                    print(f"\nIt cost the lives of {deaths} people to get you where you are now")
 
 
