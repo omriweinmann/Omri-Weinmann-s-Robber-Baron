@@ -164,8 +164,12 @@ street_endings = [
     "Mews",
     "Vale",
     "Rise",
-    "Mead"
+    "Mead",
 ]
+
+factory_types = {
+    "Refined Oil": {"Oil": 3}
+}
 
 class Property:
     def __init__(self):
@@ -196,7 +200,7 @@ class Factory:
         x = 0
         for need in self.needs:
             x += 1
-            extrastring = extrastring + f"{self.needs[need]}"
+            extrastring = extrastring + f"{self.needs[need]} {need}"
             if not x == len(self.needs):
                 extrastring = extrastring + ", "
         return string + extrastring
@@ -320,7 +324,7 @@ while True:
                                     break
                                 elif labor_type_choice == "1":
                                     money -= labor1_cost
-                                    new_factory = Factory(plot.good,plot.plot_id,plot.goods_yield,-25,50)
+                                    new_factory = Factory(plot.good,plot.plot_id,plot.goods_yield,-25,50,{})
                                     list_of_factories.append(new_factory)
                                     list_of_prospects.remove(plot)
                                     print(f"\nYou have built a {plot.good} plant that produces {plot.goods_yield} {plot.good} per quarter.")
@@ -333,7 +337,7 @@ while True:
                                     break
                                 elif labor_type_choice == "2":
                                     money -= labor2_cost
-                                    new_factory = Factory(plot.good,plot.plot_id,plot.goods_yield,-35,25)
+                                    new_factory = Factory(plot.good,plot.plot_id,plot.goods_yield,-35,25,{})
                                     list_of_factories.append(new_factory)
                                     list_of_prospects.remove(plot)
                                     print(f"\nYou have built a {plot.good} plant that produces {plot.goods_yield} {plot.good} per quarter.")
@@ -346,7 +350,7 @@ while True:
                                     break
                                 elif labor_type_choice == "3":
                                     money -= labor3_cost
-                                    new_factory = Factory(plot.good,plot.plot_id,plot.goods_yield,-50,2)
+                                    new_factory = Factory(plot.good,plot.plot_id,plot.goods_yield,-50,2,{})
                                     list_of_factories.append(new_factory)
                                     list_of_prospects.remove(plot)
                                     print(f"\nYou have built a {plot.good} plant that produces {plot.goods_yield} {plot.good} per quarter.")
@@ -358,6 +362,70 @@ while True:
                                     input("\nAre you happy with yourself?\nY/N:")
                                     break
                             break
+                        if plot in list_of_properties:
+                            print("\nHere is the list of factories you can put on this plot:\n\n0: Cancel\n")
+                            for f in factory_types:
+                                string = " Requires an input of: "
+                                for x in factory_types[f]:
+                                    string = string + f"{factory_types[f][x]} {x},"
+                                print(f"{f}:"+string)
+                            while True:
+                                property_choice = input("\nWhat would you like to do?")
+                                if property_choice == 0:
+                                    break
+                                if property_choice in factory_types:
+                                    print("Choose budget: \n")
+                                    print(f"1: Small (96 hour work week, minimal safety standards, child labor), ${labor1_cost}")
+                                    print(f"2: Medium (60 hour work week, better safety standards, no child labor), ${labor2_cost}")
+                                    print(f"3: Large (40 hour work week, best safety standards, no child labor), ${labor3_cost}")
+                                    print(f"\n0: Cancel")
+                                    while True:
+                                        labor_type_choice = input("\nWhat would you like to do? ")
+
+                                        if labor_type_choice == "0":
+                                            break
+                                        elif labor_type_choice == "1":
+                                            money -= labor1_cost
+                                            new_factory = Factory(property_choice,0,1,-25,50,factory_types[f])
+                                            list_of_factories.append(new_factory)
+                                            list_of_properties.remove(plot)
+                                            print(f"\nYou have built a {new_factory.good} plant that produces {new_factory.goods_yield} {new_factory.good} per quarter.")
+                                            add_deaths = max(0,random.randint(-250,150))
+                                            deaths += add_deaths
+                                            print(f"\nIt cost ${labor1_cost}.")
+                                            print(f"You now have ${money}.")
+                                            print(f"\nAdditionally it cost the lives of {add_deaths} workers.")
+                                            input("\nAre you happy with yourself?\nY/N:")
+                                            break
+                                        elif labor_type_choice == "2":
+                                            money -= labor2_cost
+                                            new_factory = Factory(property_choice,0,2,-35,25,factory_types[f])
+                                            list_of_factories.append(new_factory)
+                                            list_of_properties.remove(plot)
+                                            print(f"\nYou have built a {new_factory.good} plant that produces {new_factory.goods_yield} {new_factory.good} per quarter.")
+                                            add_deaths = max(0,random.randint(-350,100))
+                                            deaths += add_deaths
+                                            print(f"\nIt cost ${labor2_cost}.")
+                                            print(f"You now have ${money}.")
+                                            print(f"\nAdditionally it cost the lives of {add_deaths} workers.")
+                                            input("\nAre you happy with yourself?\nY/N:")
+                                            break
+                                        elif labor_type_choice == "3":
+                                            money -= labor3_cost
+                                            new_factory = Factory(property_choice,0,3,-50,2,factory_types[f])
+                                            list_of_factories.append(new_factory)
+                                            list_of_properties.remove(plot)
+                                            print(f"\nYou have built a {new_factory.good} plant that produces {new_factory.goods_yield} {new_factory.good} per quarter.")
+                                            add_deaths = max(0,random.randint(-350,25))
+                                            deaths += add_deaths
+                                            print(f"\nIt cost ${labor3_cost}.")
+                                            print(f"You now have ${money}.")
+                                            print(f"\nAdditionally it cost the lives of {add_deaths} workers.")
+                                            input("\nAre you happy with yourself?\nY/N:")
+                                            break
+                                    break
+
+
         elif quarterly_choice == "3":
             while True:
                 info_choice = input("\nWhat would you like to look at?\n\n0: Go back\n\n1: List of factories\n2:List of goods\n\n")
@@ -381,12 +449,20 @@ while True:
             while True:
                 potential_property = Property()
                 print(f"\nYou have the potential to buy a property on {potential_property.name} for ${potential_property.cost}")
-                property_choice = input(f"\nY/N:")
-                if property_choice == "Y":
-                    money -= potential_property.cost
-                    print(f"\nYou have bought the property on {potential_property.name}")
-                    list_of_properties.append(potential_property)
-                elif not property_choice == "N":
+                break2 = False
+                while True:
+                    property_choice = input(f"\n0: Go back\n\nY/N:")
+                    if property_choice == "Y":
+                        money -= potential_property.cost
+                        print(f"\nYou have bought the property on {potential_property.name}")
+                        list_of_properties.append(potential_property)
+                        break
+                    elif property_choice == "N":
+                        break
+                    elif property_choice == "0":
+                        break2 = True
+                        break
+                if break2 == True:
                     break
                 
 
