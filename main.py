@@ -1,6 +1,8 @@
 import random
 import math
 
+# Amir Weinmann was here.
+
 print("\nWelcome to Omri Weinmann's Robber Baron!")
 
 print("\n\nThe Guilded Age, an era of rapid economic growth and heightened prosperity")
@@ -30,6 +32,8 @@ deaths = 0
 list_of_raw_goods = set(["Iron","Oil","Timber"])
 
 list_of_prospects = []
+
+list_of_properties = []
 
 print("")
 print("\nWelcome, '"+str(first_name)+"' of '"+str(company_name)+".' This is the start of your greedy journey to rise to the top.")
@@ -72,18 +76,131 @@ class Prospect:
   def __str__(self):
     return f"Your prospect for {self.good}, which has a yield of {self.goods_yield} {self.good} per quarter"
 
+street_names = [
+    "John",
+    "Johnson",
+    "Johnman",
+    "Johnathan",
+    "Jack",
+    "Jackman",
+    "Jackson",
+    "Jackingthon",
+    "Peter",
+    "Peterson",
+    "Peteria",
+    "Stark",
+    "Tony",
+    "Aaron",
+    "Paul",
+    "Omri",
+    "Weinmann",
+    "David",
+    "Davidson",
+    "Sarah",
+    "Lopsided",
+    "Narnia",
+    "McStreet",
+    "McDonald",
+    "Fairweather",
+    "Utterson",
+    "Jekyll",
+    "Shadowfax",
+    "Frodo",
+    "Sam",
+    "Samwise",
+    "Gamgee",
+    "Baggins",
+    "Bilbo",
+    "Oakenshield",
+    "Churchill",
+    "Roosevelt",
+    "Gandalf",
+    "Sauron",
+    "Boromir",
+    "Gimli",
+    "Thorin",
+    "Bruce",
+    "Banner",
+    "Wayne",
+    "Kevin",
+    "Luca",
+    "Streety",
+    "McStreety",
+    "Abraham",
+    "Lincoln",
+    "America",
+    "Canada",
+    "Rehovot",
+    "Tel Aviv",
+    "Paris",
+    "London",
+    "Beijing",
+    "Cairo",
+    "Damascus",
+    "Galil",
+    "Kibbutz",
+    "Vin",
+    "Elend",
+    "Kelsier",
+    "Sazed"
+]
+
+street_endings = [
+    "Road",
+    "Street",
+    "Way",
+    "Avenue",
+    "Drive",
+    "Lane",
+    "Grove",
+    "Gardens",
+    "Place",
+    "Circus",
+    "Crescent",
+    "Bypass",
+    "Close",
+    "Square",
+    "Hill",
+    "Mews",
+    "Vale",
+    "Rise",
+    "Mead"
+]
+
+class Property:
+    def __init__(self):
+        self.cost = int(random.randint(int(factory_land_cost/2), int(factory_land_cost*2)))
+        print(len(street_names))
+        self.name = str(random.randint(111,9999))+" "+street_names[random.randint(1,len(street_names))]+" "+street_endings[random.randint(1,len(street_endings))]
+
+    def __str__(self):
+        return f"Your property on {self.name}"
+    
 list_of_factories = []
 
 class Factory:
-  def __init__(self, good, plot_id, goods_yield, min_deaths, max_deaths):
+  def __init__(self, good, plot_id, goods_yield, min_deaths, max_deaths, needs):
     self.good = good
     self.plot_id = plot_id
     self.goods_yield = goods_yield
     self.min_deaths = min_deaths
     self.max_deaths = max_deaths
+    self.needs = needs
 
   def __str__(self):
-    return f"Your factory for {self.good}, which has a yield of {self.goods_yield} {self.good} per quarter. {str(max(0,random.randint(self.min_deaths,self.max_deaths)))} workers are projected to die."
+    string = f"Your factory for {self.good}, which has a yield of {self.goods_yield} {self.good} per quarter. {str(max(0,random.randint(self.min_deaths,self.max_deaths)))} workers are projected to die."
+    if self.needs == {}:
+        return string
+    else:
+        extrastring = "\n - To produce this, the factory requires an input of "
+        x = 0
+        for need in self.needs:
+            x += 1
+            extrastring = extrastring + f"{self.needs[need]}"
+            if not x == len(self.needs):
+                extrastring = extrastring + ", "
+        return string + extrastring
+        
 
 prospect_id = 1
 
@@ -117,7 +234,8 @@ while True:
         print("0: Proceed to the next quarter")
         print("1: Prospect for resources")
         print("2: Build a factory")
-        print("3: Company Information")
+        print("3: Company information")
+        print("4: Buy a property")
 
         quarterly_choice = input("\n")
 
@@ -161,6 +279,8 @@ while True:
         elif quarterly_choice == "2":
             total_list = []
             for p in list_of_prospects:
+                total_list.append(p)
+            for p in list_of_properties:
                 total_list.append(p)
             print("Here is the list of land plots you own:\n")
             
@@ -257,5 +377,16 @@ while True:
                     for good in goods:
                         print(str(good)+": "+str(goods[good]))
                     print(f"\nIt cost the lives of {deaths} people to get you where you are now")
-
+        elif quarterly_choice == "4":
+            while True:
+                potential_property = Property()
+                print(f"\nYou have the potential to buy a property on {potential_property.name} for ${potential_property.cost}")
+                property_choice = input(f"\nY/N:")
+                if property_choice == "Y":
+                    money -= potential_property.cost
+                    print(f"\nYou have bought the property on {potential_property.name}")
+                    list_of_properties.append(potential_property)
+                elif not property_choice == "N":
+                    break
+                
 
