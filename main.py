@@ -27,6 +27,13 @@ labor1_cost = 20000
 labor2_cost = 300000
 labor3_cost = 1000000
 
+market = {
+    "Oil": 1000,
+    "Timber": 250,
+    "Iron": 750,
+    "Refined Oil": 2500,
+}
+
 deaths = 0
 
 list_of_raw_goods = set(["Iron","Oil","Timber"])
@@ -49,6 +56,7 @@ def fluctuate_market():
     global labor1_cost
     global labor2_cost
     global labor3_cost
+    global market
     iron_prospect += max(0,int(iron_prospect * float(random.randint(-15,25))/100))
     oil_prospect += max(0,int(oil_prospect * float(random.randint(-15,25))/100))
     timber_prospect += max(0,int(timber_prospect * float(random.randint(-15,25))/100))
@@ -57,6 +65,8 @@ def fluctuate_market():
     labor1_cost += max(0,int(labor1_cost * float(random.randint(-15,25))/100))
     labor2_cost += max(0,int(labor2_cost * float(random.randint(-15,25))/100))
     labor3_cost += max(0,int(labor3_cost * float(random.randint(-15,25))/100))
+    for m in market:
+        market[m] += max(0,int(market[m] * float(random.randint(-5,10))/100))
 
 def convert_to_year_quarter():
     global quarter
@@ -175,7 +185,7 @@ class Property:
     def __init__(self):
         self.cost = int(random.randint(int(factory_land_cost/2), int(factory_land_cost*2)))
         print(len(street_names))
-        self.name = str(random.randint(111,9999))+" "+street_names[random.randint(1,len(street_names))]+" "+street_endings[random.randint(1,len(street_endings))]
+        self.name = str(random.randint(111,9999))+" "+street_names[random.randint(1,len(street_names))-1]+" "+street_endings[random.randint(1,len(street_endings))-1]
 
     def __str__(self):
         return f"Your property on {self.name}"
@@ -214,12 +224,37 @@ while True:
     if money < 0:
         print(f"\n\n\nYou are in insurmountable amounts of debt! Game over.\n\nYour actions caused the deaths of {deaths} people.\n\nGame Over! You ended with ${money}\n\n\n")
         break
-    for factory in list_of_factories:
-        if factory.good in goods:
-            goods[factory.good] += factory.goods_yield
-        else:
-            goods[factory.good] = factory.goods_yield
-        deaths += max(0,random.randint(factory.min_deaths,factory.max_deaths))
+    for factory_raw in list_of_factories:
+        factory:Factory = factory_raw
+        go = True
+        while True:
+            once = 0
+            if not factory.needs == {}:
+                once += 1
+                for need in factory.needs:
+                    if need in goods:
+                        if not goods[need] >= factory.needs[need]:
+                            go = False
+                            once = 3
+                            break
+                        else:
+                            goods[need] -= factory.needs[need]
+                    else:
+                        go = False
+                        once = 3
+                        break
+            else:
+                once = 3
+            if go == True:
+                if factory.good in goods:
+                    goods[factory.good] += factory.goods_yield
+                else:
+                    goods[factory.good] = factory.goods_yield
+                deaths += max(0,random.randint(factory.min_deaths,factory.max_deaths))
+            print(once)
+            if once >= 3:
+                break
+            
 
     fluctuate_market()
     quarter += 1
@@ -232,16 +267,23 @@ while True:
 
     if quarter == 1:
         print("I suggest you prospect for resources; you cant make a factory if you dont know where to place one!")
-    
+    xxx = 0
     while True:
+        if not xxx == 0:
+            print(f"\nYou have ${money}")
+        xxx += 1
         print("\nWhat would you like to do? \n")
         print("0: Proceed to the next quarter")
         print("1: Prospect for resources")
-        print("2: Build a factory")
-        print("3: Company information")
-        print("4: Buy a property")
+        print("2: Buy a property")
+        print("3: Build a factory")
+        print("4: Import/Export")
+        print("5: Company information")
 
         quarterly_choice = input("\n")
+
+        if quarterly_choice == "money":
+            money += 9999999
 
         if quarterly_choice == "1":
             print("Good choice!\n")
@@ -280,7 +322,7 @@ while True:
                     break
         elif quarterly_choice == "0":
             break
-        elif quarterly_choice == "2":
+        elif quarterly_choice == "3":
             total_list = []
             for p in list_of_prospects:
                 total_list.append(p)
@@ -288,8 +330,9 @@ while True:
                 total_list.append(p)
             print("Here is the list of land plots you own:\n")
             
-            x = 1
+            x = 0
             for p in total_list:
+                x+= 1
                 print(str(x)+": "+str(p))
 
             print("\n0: Go back\n")
@@ -324,7 +367,7 @@ while True:
                                     break
                                 elif labor_type_choice == "1":
                                     money -= labor1_cost
-                                    new_factory = Factory(plot.good,plot.plot_id,plot.goods_yield,-25,50,{})
+                                    new_factory = Factory(plot.good,plot.plot_id,plot.goods_yield,-25,25,{})
                                     list_of_factories.append(new_factory)
                                     list_of_prospects.remove(plot)
                                     print(f"\nYou have built a {plot.good} plant that produces {plot.goods_yield} {plot.good} per quarter.")
@@ -337,7 +380,7 @@ while True:
                                     break
                                 elif labor_type_choice == "2":
                                     money -= labor2_cost
-                                    new_factory = Factory(plot.good,plot.plot_id,plot.goods_yield,-35,25,{})
+                                    new_factory = Factory(plot.good,plot.plot_id,plot.goods_yield,-35,10,{})
                                     list_of_factories.append(new_factory)
                                     list_of_prospects.remove(plot)
                                     print(f"\nYou have built a {plot.good} plant that produces {plot.goods_yield} {plot.good} per quarter.")
@@ -386,7 +429,7 @@ while True:
                                             break
                                         elif labor_type_choice == "1":
                                             money -= labor1_cost
-                                            new_factory = Factory(property_choice,0,1,-25,50,factory_types[f])
+                                            new_factory = Factory(property_choice,0,1,-25,25,factory_types[f])
                                             list_of_factories.append(new_factory)
                                             list_of_properties.remove(plot)
                                             print(f"\nYou have built a {new_factory.good} plant that produces {new_factory.goods_yield} {new_factory.good} per quarter.")
@@ -399,7 +442,7 @@ while True:
                                             break
                                         elif labor_type_choice == "2":
                                             money -= labor2_cost
-                                            new_factory = Factory(property_choice,0,2,-35,25,factory_types[f])
+                                            new_factory = Factory(property_choice,0,1,-35,10,factory_types[f])
                                             list_of_factories.append(new_factory)
                                             list_of_properties.remove(plot)
                                             print(f"\nYou have built a {new_factory.good} plant that produces {new_factory.goods_yield} {new_factory.good} per quarter.")
@@ -412,7 +455,7 @@ while True:
                                             break
                                         elif labor_type_choice == "3":
                                             money -= labor3_cost
-                                            new_factory = Factory(property_choice,0,3,-50,2,factory_types[f])
+                                            new_factory = Factory(property_choice,0,1,-50,2,factory_types[f])
                                             list_of_factories.append(new_factory)
                                             list_of_properties.remove(plot)
                                             print(f"\nYou have built a {new_factory.good} plant that produces {new_factory.goods_yield} {new_factory.good} per quarter.")
@@ -424,11 +467,9 @@ while True:
                                             input("\nAre you happy with yourself?\nY/N:")
                                             break
                                     break
-
-
-        elif quarterly_choice == "3":
+        elif quarterly_choice == "5":
             while True:
-                info_choice = input("\nWhat would you like to look at?\n\n0: Go back\n\n1: List of factories\n2:List of goods\n\n")
+                info_choice = input("\nWhat would you like to look at?\n\n0: Go back\n\n1: List of factories\n2: List of goods\n3: Market \n\n")
 
                 if info_choice == "0":
                     break
@@ -445,7 +486,12 @@ while True:
                     for good in goods:
                         print(str(good)+": "+str(goods[good]))
                     print(f"\nIt cost the lives of {deaths} people to get you where you are now")
-        elif quarterly_choice == "4":
+                elif info_choice == "3":
+                    print("\nHere is the current market rate for each good:\n")
+                    x = 0
+                    for good in market:
+                        print(str(good)+": $"+str(market[good]))
+        elif quarterly_choice == "2":
             while True:
                 potential_property = Property()
                 print(f"\nYou have the potential to buy a property on {potential_property.name} for ${potential_property.cost}")
@@ -464,5 +510,44 @@ while True:
                         break
                 if break2 == True:
                     break
-                
+        elif quarterly_choice == "4":
+            imp_exp_choice = input("What would you like to do?\n\nImport/Export: ")
+
+            if imp_exp_choice == "Import":
+                imp_choice = input("What would you like to import? ")
+
+                if imp_choice in market:
+                    imp_amount_choice = input(f"How much {imp_choice} would you like to buy? ")
+                    try:
+                        integer = int(imp_amount_choice)
+                        are_you_sure = input(f"It would cost ${market[imp_choice]*integer} to buy {imp_amount_choice} {imp_choice}, are you sure? Y/N: ")
+                        if are_you_sure == "Y":
+                            money -= market[imp_choice]*integer
+                            if imp_choice in goods:
+                                goods[imp_choice] += integer
+                            else:
+                                goods[imp_choice] = integer
+                    except:
+                        print("\nInvalid amount\n")
+                else:
+                    print("\nInvalid good\n")
+            if imp_exp_choice == "Export":
+                imp_choice = input("What would you like to export? ")
+                if imp_choice in market:
+                    imp_amount_choice = input(f"How much {imp_choice} would you like to sell? ")
+                    try:
+                        integer = int(imp_amount_choice)
+                        if imp_choice in goods and goods[imp_choice] >= integer:
+                            are_you_sure = input(f"You will get ${market[imp_choice]*integer} from selling {imp_amount_choice} {imp_choice}, are you sure? Y/N: ")
+                            if are_you_sure == "Y":
+                                money += market[imp_choice]*integer
+                                goods[imp_choice] -= integer
+                        else:
+                            print(f"\nYou do not have enough {imp_choice}\n")
+                    except:
+                        print("\nInvalid amount\n")
+                else:
+                    print("\nInvalid good\n")
+
+
 
